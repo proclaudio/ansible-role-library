@@ -1,0 +1,6 @@
+---
+- name: Test promtail role
+  hosts: test_servers
+  become: yes
+  roles:
+    - promtail

@@ -1,0 +1,26 @@
+---
+- name: Remove insecure services
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: absent
+  loop: "{{ insecure_services }}"
+  ignore_errors: yes
+
+- name: Disable rpcbind if not needed
+  ansible.builtin.systemd:
+    name: rpcbind
+    enabled: no
+    state: stopped
+  ignore_errors: yes
+
+- name: CIS 1.1.22 - Set sticky bit on all world-writable directories
+  ansible.builtin.shell: |
+    df --local -P | awk '{if (NR!=1) print $6}' | \
+    xargs -I '{}' find '{}' -xdev -type d -perm -0002 2>/dev/null | \
+    xargs chmod a+t 2>/dev/null
+    echo "sticky bit set"
+  changed_when: false
+
+- name: Print sticky bit result
+  ansible.builtin.debug:
+    msg: "{{ sticky_result.stdout }}"

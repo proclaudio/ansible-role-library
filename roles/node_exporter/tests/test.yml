@@ -1,0 +1,6 @@
+---
+- name: Test node_exporter role
+  hosts: test_servers
+  become: yes
+  roles:
+    - node_exporter

@@ -1,0 +1,20 @@
+---
+# Example: Full server setup using all three roles
+# This demonstrates how roles from this library can be combined
+
+- name: Complete Server Configuration
+  hosts: new_servers
+  become: yes
+  roles:
+    - role: node_exporter
+      vars:
+        node_exporter_version: "1.7.0"
+
+    - role: linux_hardening
+      vars:
+        ssh_permit_root_login: "no"
+        password_min_length: 14
+
+    - role: promtail
+      vars:
+        loki_url: "http://192.168.111.40:3100"

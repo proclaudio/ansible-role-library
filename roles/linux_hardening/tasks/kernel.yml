@@ -1,0 +1,51 @@
+---
+# CIS 3.1.1 - Disable IP forwarding (unless server is a router)
+# CIS 3.2.2 - Disable ICMP redirect acceptance
+
+- name: CIS 3.1.1 - Disable IPv4 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '0'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+
+- name: CIS 3.2.2 - Disable ICMP redirect acceptance
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.accept_redirects
+    value: '0'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+
+- name: Disable secure ICMP redirect acceptance
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.secure_redirects
+    value: '0'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+
+- name: Enable TCP SYN cookies
+  ansible.posix.sysctl:
+    name: net.ipv4.tcp_syncookies
+    value: '1'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+
+- name: Disable source routing
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.accept_source_route
+    value: '0'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf
+
+- name: Enable reverse path filtering
+  ansible.posix.sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: '1'
+    state: present
+    reload: yes
+    sysctl_file: /etc/sysctl.d/99-hardening.conf

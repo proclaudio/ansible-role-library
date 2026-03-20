@@ -1,0 +1,81 @@
+---
+# CIS 5.2.8 - Disable root login
+# CIS 5.2.12 - Disable password authentication
+# CIS 5.2.13 - Set idle timeout
+
+- name: Ensure SSH public key exists for user before hardening
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+  register: ssh_key_check
+
+- name: Fail if SSH key not present - refuse to disable password auth
+  ansible.builtin.fail:
+    msg: "No SSH authorized_keys found for {{ ansible_user }}. Refusing to disable password authentication to prevent lockout."
+  when: not ssh_key_check.stat.exists
+
+- name: Backup original sshd_config
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.bak
+    remote_src: yes
+    force: no
+
+- name: CIS 5.2.8 - Disable root SSH login
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+    state: present
+  notify: Restart sshd
+
+- name: CIS 5.2.12 - Disable password authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+    state: present
+  notify: Restart sshd
+
+- name: CIS 5.2.13 - Set SSH idle timeout interval
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?ClientAliveInterval'
+    line: 'ClientAliveInterval {{ ssh_client_alive_interval }}'
+    state: present
+  notify: Restart sshd
+
+- name: CIS 5.2.13 - Set SSH idle timeout count
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?ClientAliveCountMax'
+    line: 'ClientAliveCountMax {{ ssh_client_alive_count_max }}'
+    state: present
+  notify: Restart sshd
+
+- name: Set SSH MaxAuthTries
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?MaxAuthTries'
+    line: 'MaxAuthTries {{ ssh_max_auth_tries }}'
+    state: present
+  notify: Restart sshd
+
+- name: Set SSH LoginGraceTime
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?LoginGraceTime'
+    line: 'LoginGraceTime {{ ssh_login_grace_time }}'
+    state: present
+  notify: Restart sshd
+
+- name: Disable SSH X11 forwarding
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?X11Forwarding'
+    line: 'X11Forwarding no'
+    state: present
+  notify: Restart sshd
+
+- name: Verify sshd config is valid
+  ansible.builtin.command: sshd -t
+  changed_when: false

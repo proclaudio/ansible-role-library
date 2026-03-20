@@ -1,0 +1,16 @@
+---
+# Local role references - Galaxy-aware structure
+# To install from this library locally:
+#   ansible-galaxy install -r requirements.yml
+# To install from GitHub:
+#   change src to https://github.com/proclaudio/ansible-role-library
+
+roles:
+  - name: node_exporter
+    src: ./roles/node_exporter
+
+  - name: linux_hardening
+    src: ./roles/linux_hardening
+
+  - name: promtail
+    src: ./roles/promtail

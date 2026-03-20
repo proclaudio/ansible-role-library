@@ -1,0 +1,54 @@
+---
+# CIS 4.1.1 - Ensure auditd is installed and running
+# CIS 4.1.8 - Ensure login and logout events are collected
+
+- name: CIS 4.1.1 - Ensure auditd is installed
+  ansible.builtin.package:
+    name: audit
+    state: present
+
+- name: CIS 4.1.1 - Ensure auditd is enabled and running
+  ansible.builtin.systemd:
+    name: auditd
+    enabled: yes
+    state: started
+
+- name: Configure auditd max log file size
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file '
+    line: 'max_log_file = {{ auditd_max_log_file }}'
+  notify: Restart auditd
+
+- name: Configure auditd max log file action
+  ansible.builtin.lineinfile:
+    path: /etc/audit/auditd.conf
+    regexp: '^max_log_file_action'
+    line: 'max_log_file_action = {{ auditd_max_log_file_action }}'
+  notify: Restart auditd
+
+- name: CIS 4.1.8 - Audit login and logout events
+  ansible.builtin.blockinfile:
+    path: /etc/audit/rules.d/hardening.rules
+    create: yes
+    block: |
+      # CIS 4.1.8 - Login and logout events
+      -w /var/log/lastlog -p wa -k logins
+      -w /var/run/faillock -p wa -k logins
+
+      # CIS 4.1.9 - Session initiation events
+      -w /var/run/utmp -p wa -k session
+      -w /var/log/wtmp -p wa -k session
+      -w /var/log/btmp -p wa -k session
+
+      # Audit sudoers changes
+      -w /etc/sudoers -p wa -k sudoers
+      -w /etc/sudoers.d/ -p wa -k sudoers
+
+      # Audit SSH config changes
+      -w /etc/ssh/sshd_config -p wa -k sshd_config
+  notify: Restart auditd
+
+- name: Load audit rules immediately
+  ansible.builtin.command: augenrules --load
+  changed_when: false

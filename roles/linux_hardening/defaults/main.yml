@@ -1,0 +1,28 @@
+---
+# SSH settings
+ssh_port: 22
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+ssh_client_alive_interval: 300
+ssh_client_alive_count_max: 2
+ssh_max_auth_tries: 3
+ssh_login_grace_time: 60
+
+# Password policy (CIS 5.4.1)
+password_min_length: 14
+password_min_days: 1
+password_max_days: 90
+password_warn_days: 7
+
+# Auditd settings
+auditd_max_log_file: 8
+auditd_max_log_file_action: keep_logs
+auditd_space_left_action: email
+auditd_admin_space_left_action: halt
+
+# Services to remove
+insecure_services:
+  - telnet
+  - rsh
+  - ypbind
+  - tftp

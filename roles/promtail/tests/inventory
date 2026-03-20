@@ -1,0 +1,2 @@
+[test_servers]
+dev-web-01 ansible_host=192.168.111.101 ansible_user=ladmin

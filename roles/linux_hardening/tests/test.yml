@@ -1,0 +1,6 @@
+---
+- name: Test linux_hardening role
+  hosts: test_servers
+  become: yes
+  roles:
+    - linux_hardening

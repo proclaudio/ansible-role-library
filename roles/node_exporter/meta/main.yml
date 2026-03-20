@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: node_exporter
+  author: proclaudio
+  description: Deploy and configure Prometheus node_exporter on Rocky Linux servers
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+  galaxy_tags:
+    - monitoring
+    - prometheus
+    - node_exporter
+    - observability
+
+dependencies: []
